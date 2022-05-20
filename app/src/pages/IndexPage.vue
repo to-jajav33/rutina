@@ -21,7 +21,7 @@
           <div class="row no-wrap flex full-width justify-center items-end">
 
             <!-- bar graph -->
-            <div v-for="(barValue, barValIndex) in slide.values.slice(-4)" :key="`indexPageCarouselBarVal${slide.values.length - 1 - barValIndex}`" class="column col-2 justify-end q-px-sm" :style="{height: '100%'}">
+            <div @click="updateValue(index, barValIndex)" v-for="(barValue, barValIndex) in slide.values.slice(-4)" :key="`indexPageCarouselBarVal${slide.values.length - 1 - barValIndex}`" class="column col-2 justify-end q-px-sm" :style="{height: '100%'}">
               <div class="row" :style="{border: '2px solid var(--q-primary)', borderRadius: '4px', height: '80%'}">
                 <div class="bg-primary col self-end" :style="{height: `${Math.min(barValue / Math.max(slide.maxValue, 1.0), 1.0) * 100.0}%`}">&nbsp;</div>
               </div>
@@ -90,6 +90,26 @@ export default defineComponent({
         const maxValue = Math.max(currSlide.maxValue, data);
 
         currSlide.values.push(Number(newVal));
+        currSlide.maxValue = maxValue;
+      });
+    },
+    updateValue(slideIndex: number, valIndex: number) {
+      this.$q.dialog({
+        title: 'ChangeValue',
+        message: '',
+        cancel: true,
+        persistent: true,
+        prompt: {
+          model: '',
+          type: 'number' // optional
+        },
+      }).onOk((data) => {
+        const currSlide = this.slides[slideIndex];
+        const newVal = Number(data);
+
+        currSlide.values[currSlide.values.length - 4 + valIndex] = Number(newVal);
+
+        const maxValue = Math.max(...this.slides[slideIndex].values);
         currSlide.maxValue = maxValue;
       });
     }
