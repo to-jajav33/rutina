@@ -11,11 +11,13 @@
         padding
         arrows
         height="300px"
-        class="bg-primary text-white shadow-1 rounded-borders"
+        class="bg-primary text-white shadow-1 rounded-borders col-6"
     >
       <q-carousel-slide class="column no-wrap flex-center full-width" v-for="(slide, index) in slides" :key="`IndexSlidesWorkout${index}-${slide.name}`" :name="`IndexSlidesWorkout${index}-${slide.name}`">
-        <q-card class="full-width" dark>
-          {{slide.name}}
+        <q-card class="full-width column flex-center">
+          <span :class="$q.dark.isActive ? 'text-white' : 'text-dark'">
+            {{slide.name}}
+          </span>
         </q-card>
       </q-carousel-slide>
     </q-carousel>
@@ -26,7 +28,8 @@
 import { defineComponent, ref } from 'vue';
 
 type Workout = {
-  name: string
+  name: string,
+  values: number[]
 };
 
 export default defineComponent({
@@ -35,10 +38,12 @@ export default defineComponent({
   setup() {
     const slides = ref<Workout[]>([
       {
-        name: 'Squats'
+        name: 'Squats',
+        values: [0]
       },
       {
-        name: 'Dead Lifts'
+        name: 'Dead Lifts',
+        values: [0]
       }
     ]);
 
