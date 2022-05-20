@@ -144,8 +144,8 @@ module.exports = configure(function (ctx) {
       // chainWebpackCustomSW (/* chain */) {},
 
       manifest: {
-        name: 'AyWorkout',
-        short_name: 'AyWorkout',
+        name: 'Rutina',
+        short_name: 'Rutina',
         description: '',
         display: 'standalone',
         orientation: 'portrait',
@@ -211,7 +211,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'ayworkout'
+        appId: 'Rutina'
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

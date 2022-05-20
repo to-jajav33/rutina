@@ -1,4 +1,4 @@
-# AyWorkout (ayworkout)
+# Rutina (rutina)
 
 Workout Journal
 
