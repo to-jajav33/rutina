@@ -15,17 +15,23 @@
     >
       <q-carousel-slide class="column no-wrap flex-center full-width" v-for="(slide, index) in slides" :key="`IndexSlidesWorkout${index}-${slide.name}`" :name="`IndexSlidesWorkout${index}-${slide.name}`">
         <q-card class="full-width column flex-center q-pa-sm">
-          <div :class="$q.dark.isActive ? 'text-white' : 'text-dark'">
+          <div :class="`${$q.dark.isActive ? 'text-white' : 'text-dark'} text-h4 q-pa-md`">
             {{slide.name}}
           </div>
           <div class="row no-wrap flex full-width q-gutter-x-xs justify-center items-end">
 
             <!-- bar graph -->
-            <div v-for="(barValue, barValIndex) in slide.values.slice(-5)" :key="`indexPageCarouselBarVal${slide.values.length - 1 - barValIndex}`" class="column col-2 justify-end" :style="{height: '100%'}">
+            <div v-for="(barValue, barValIndex) in slide.values.slice(-4)" :key="`indexPageCarouselBarVal${slide.values.length - 1 - barValIndex}`" class="column col-2 justify-end" :style="{height: '100%'}">
               <div class="row" :style="{border: '2px solid var(--q-primary)', borderRadius: '4px', height: '80%'}">
                 <div class="bg-primary col self-end" :style="{height: `${Math.min(barValue / Math.max(slide.maxValue, 1.0), 1.0) * 100.0}%`}">&nbsp;</div>
               </div>
               <div class="self-center col" style="font-size: 10px; height: 5%;">{{barValue}} {{slide.measurement}}</div>
+            </div>
+            <div class="column col-2 flex-center q-pa-md" :style="{height: '100%'}">
+              <q-btn class="row flex-center" color="secondary">
+                <q-icon name="add"></q-icon>
+              </q-btn>
+              <div class="self-center col" style="font-size: 10px;">ADD</div>
             </div>
           </div>
         </q-card>
