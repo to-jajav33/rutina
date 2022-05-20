@@ -30,7 +30,7 @@
 
             <!-- add btn -->
             <div class="row col-2 justify-center items-center q-ml-md" :style="{height: '100%'}">
-              <q-btn icon="add" color="secondary" outline stack></q-btn>
+              <q-btn @click="onCreateNewValueModal(index)" icon="add" color="secondary" outline stack></q-btn>
             </div>
           </div>
         </q-card>
@@ -70,7 +70,29 @@ export default defineComponent({
 
     const startingIndex = 0;
     let currentSlideName = ref(`IndexSlidesWorkout${startingIndex}-${slides.value[startingIndex].name}`);
+
     return { slides, currentSlideName };
+  },
+  methods: {
+    onCreateNewValueModal(slideIndex: number) {
+      this.$q.dialog({
+        title: 'Whats your new weight?',
+        message: 'Nice work!',
+        cancel: true,
+        persistent: true,
+        prompt: {
+          model: '',
+          type: 'number' // optional
+        },
+      }).onOk((data) => {
+        const currSlide = this.slides[slideIndex];
+        const newVal = Number(data);
+        const maxValue = Math.max(currSlide.maxValue, data);
+
+        currSlide.values.push(Number(newVal));
+        currSlide.maxValue = maxValue;
+      });
+    }
   }
 });
 </script>
