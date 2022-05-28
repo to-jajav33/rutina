@@ -15,8 +15,11 @@
     >
       <q-carousel-slide class="column no-wrap flex-center full-width" v-for="(slide, index) in slides" :key="`IndexSlidesWorkout${index}-${slide.name}`" :name="`IndexSlidesWorkout${index}-${slide.name}`">
         <q-card class="full-width column flex-center q-pa-sm">
-          <div :class="`${$q.dark.isActive ? 'text-white' : 'text-dark'} text-h4 q-pa-md`">
-            {{slide.name}}
+          <div class="row q-pa-md">
+            <div :class="`${$q.dark.isActive ? 'text-white' : 'text-dark'} text-h4 q-pa-md`">
+              {{slide.name}}
+            </div>
+            <q-btn @click="onAddWorkout" icon="add" size="sm" flat></q-btn>
           </div>
           <div class="row no-wrap flex full-width justify-center items-end">
 
@@ -36,7 +39,22 @@
         </q-card>
       </q-carousel-slide>
     </q-carousel>
+
   </q-page>
+    <q-dialog :model-value="openAddWorkoutDialog" v-close-popup>
+      <q-card class="column col q-pa-md" dark>
+        <q-card-section>
+          <div class="text-h4">Create Workout</div>
+          <q-input v-model="newWorkoutName" label="Workout Name"></q-input>
+        </q-card-section>
+        <q-card-section>
+          <q-card-actions align="right">
+            <q-btn @click="onCreateNewWorkoutDialog" label="OK"></q-btn>
+            <q-btn @click="onCancelAddWorkoutDialog" label="CANCEL"></q-btn>
+          </q-card-actions>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 </template>
 
 <script lang="ts">
@@ -56,7 +74,7 @@ export default defineComponent({
     const slides = ref<Workout[]>([
       {
         name: 'Squats',
-        values: [ 5, 7, 8, 10, 20],
+        values: [ 0 ],
         maxValue: 20,
         measurement: 'lbs',
       },
@@ -68,13 +86,22 @@ export default defineComponent({
       }
     ]);
 
+    const openAddWorkoutDialog = ref(false);
+    const newWorkoutName = ref('');
+
     const startingIndex = 0;
     let currentSlideName = ref(`IndexSlidesWorkout${startingIndex}-${slides.value[startingIndex].name}`);
     const maxNumberOfValuesToShow = 5;
 
-    return { slides, currentSlideName, maxNumberOfValuesToShow };
+    return { slides, currentSlideName, maxNumberOfValuesToShow, openAddWorkoutDialog, newWorkoutName };
   },
   methods: {
+    onAddWorkout() {
+      this.openAddWorkoutDialog = true;
+    },
+    onCancelAddWorkoutDialog() {
+      this.openAddWorkoutDialog = false;
+    },
     onCreateNewValueModal(slideIndex: number) {
       this.$q.dialog({
         title: 'Whats your new weight?',
@@ -93,6 +120,19 @@ export default defineComponent({
         currSlide.values.push(Number(newVal));
         currSlide.maxValue = maxValue;
       });
+    },
+    onCreateNewWorkoutDialog() {
+      if (!this.newWorkoutName) return console.warn('no workout name was provided');
+
+      this.slides.push({
+        name: this.newWorkoutName,
+        values: [ 0 ],
+        maxValue: 0,
+        measurement: 'lbs',
+      });
+
+      this.newWorkoutName = '';
+      this.openAddWorkoutDialog = false;
     },
     updateValue(slideIndex: number, valIndex: number) {
       this.$q.dialog({
