@@ -189,8 +189,8 @@ export default defineComponent({
     }
 
     if (this.profileData.workouts.length) {
-      const startingIndex = this.profileData.workouts.length - 1;
-      this.currentSlideName = `IndexSlidesWorkout${startingIndex}-${this.slides[startingIndex].name}`;
+      const startingIndex = 0;
+      this.currentSlideName = `IndexSlidesWorkout${startingIndex}-${this.slides[startingIndex].name.replace(' ', '_')}`;
     }
   }
 });
