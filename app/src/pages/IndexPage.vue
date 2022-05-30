@@ -1,6 +1,7 @@
 <template>
   <q-page class="row items-center justify-evenly">
     <q-carousel
+        v-if="slides && slides.length"
         v-model="currentSlideName"
         transition-prev="scale"
         transition-next="scale"
@@ -39,6 +40,12 @@
         </q-card>
       </q-carousel-slide>
     </q-carousel>
+  
+    <q-carousel v-else v-model="currentSlideName">
+      <q-carousel-slide class="column no-wrap flex-center full-width" name="no-name">
+        <q-btn @click="onAddWorkout" icon="add" label="Add a Workout"></q-btn>
+      </q-carousel-slide>
+    </q-carousel>
 
   </q-page>
     <q-dialog :model-value="openAddWorkoutDialog" v-close-popup>
@@ -46,6 +53,7 @@
         <q-card-section>
           <div class="text-h4">Create Workout</div>
           <q-input v-model="newWorkoutName" label="Workout Name"></q-input>
+          <q-input v-model="newMeasurement" label="Unit of Measurement"></q-input>
         </q-card-section>
         <q-card-section>
           <q-card-actions align="right">
@@ -59,6 +67,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { uid } from 'quasar';
 
 type Workout = {
   name: string,
@@ -71,29 +80,17 @@ export default defineComponent({
   name: 'IndexPage',
   components: { },
   setup() {
-    const slides = ref<Workout[]>([
-      {
-        name: 'Squats',
-        values: [ 0 ],
-        maxValue: 20,
-        measurement: 'lbs',
-      },
-      {
-        name: 'Dead Lifts',
-        values: [0],
-        maxValue: 20,
-        measurement: 'lbs',
-      }
-    ]);
+    const profileID = uid();
+    const slides = ref<Workout[]>([]);
 
     const openAddWorkoutDialog = ref(false);
     const newWorkoutName = ref('');
+    const newMeasurement = ref('lbs');
 
-    const startingIndex = 0;
-    let currentSlideName = ref(`IndexSlidesWorkout${startingIndex}-${slides.value[startingIndex].name}`);
+    let currentSlideName = ref('no-name');
     const maxNumberOfValuesToShow = 5;
 
-    return { slides, currentSlideName, maxNumberOfValuesToShow, openAddWorkoutDialog, newWorkoutName };
+    return { slides, currentSlideName, maxNumberOfValuesToShow, openAddWorkoutDialog, newWorkoutName, newMeasurement, profileID };
   },
   methods: {
     onAddWorkout() {
@@ -127,12 +124,15 @@ export default defineComponent({
       this.slides.push({
         name: this.newWorkoutName,
         values: [ 0 ],
-        maxValue: 0,
-        measurement: 'lbs',
+        maxValue: 1,
+        measurement: this.newMeasurement,
       });
 
       this.newWorkoutName = '';
       this.openAddWorkoutDialog = false;
+
+      const startingIndex = this.slides.length - 1;
+      this.currentSlideName = `IndexSlidesWorkout${startingIndex}-${this.slides[startingIndex].name}`;
     },
     updateValue(slideIndex: number, valIndex: number) {
       this.$q.dialog({
@@ -154,6 +154,42 @@ export default defineComponent({
         currSlide.maxValue = maxValue;
       });
     }
+  },
+  async mounted() {
+    // let profileData : {workouts: Workout[] | undefined, version: string} = (await this.$storage.get(this.profileID) as unknown) as {workouts: Workout[] | undefined, version: string};
+    // let storedSlides = profileData.workouts;
+
+    // if (!storedSlides) {
+    //   storedSlides = [
+    //     {
+    //       name: 'Squats',
+    //       values: [ 0 ],
+    //       maxValue: 1,
+    //       measurement: 'lbs',
+    //     },
+    //     {
+    //       name: 'Dead Lifts',
+    //       values: [0],
+    //       maxValue: 1,
+    //       measurement: 'lbs',
+    //     },
+    //     {
+    //       name: 'Pull Downs',
+    //       values: [0],
+    //       maxValue: 1,
+    //       measurement: 'lbs',
+    //     },
+    //     {
+    //       name: 'Bench Press',
+    //       values: [0],
+    //       maxValue: 1,
+    //       measurement: 'lbs',
+    //     },
+    //   ]
+    // }
+
+    // const startingIndex = 0;
+    // this.currentSlideName = `IndexSlidesWorkout${startingIndex}-${this.slides[startingIndex].name}`;
   }
 });
 </script>
