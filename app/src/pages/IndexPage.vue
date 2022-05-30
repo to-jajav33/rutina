@@ -67,7 +67,6 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { uid } from 'quasar';
 
 type Workout = {
   name: string,
@@ -76,11 +75,13 @@ type Workout = {
   measurement: string,
 };
 
+type RoutinaDB = {rutina: {profiles: Record<string,{ workouts: Workout[], version: string }>}}
+
 export default defineComponent({
   name: 'IndexPage',
   components: { },
   setup() {
-    const profileID = uid();
+    const profileID = 'default';
     const slides = ref<Workout[]>([]);
 
     const openAddWorkoutDialog = ref(false);
@@ -90,7 +91,12 @@ export default defineComponent({
     let currentSlideName = ref('no-name');
     const maxNumberOfValuesToShow = 5;
 
-    return { slides, currentSlideName, maxNumberOfValuesToShow, openAddWorkoutDialog, newWorkoutName, newMeasurement, profileID };
+    const profileData = ref({
+      workouts: [] as Workout[],
+      version: ''
+    });
+
+    return { slides, currentSlideName, maxNumberOfValuesToShow, openAddWorkoutDialog, newWorkoutName, newMeasurement, profileID, profileData };
   },
   methods: {
     onAddWorkout() {
@@ -118,7 +124,7 @@ export default defineComponent({
         currSlide.maxValue = maxValue;
       });
     },
-    onCreateNewWorkoutDialog() {
+    async onCreateNewWorkoutDialog() {
       if (!this.newWorkoutName) return console.warn('no workout name was provided');
 
       this.slides.push({
@@ -133,6 +139,17 @@ export default defineComponent({
 
       const startingIndex = this.slides.length - 1;
       this.currentSlideName = `IndexSlidesWorkout${startingIndex}-${this.slides[startingIndex].name}`;
+
+      await this.save();
+    },
+    async save() {
+      let db = (await this.$storage.get('rutina') as unknown) as RoutinaDB;
+      if (!db) db = {rutina: {profiles: {}}};
+
+      db.rutina.profiles[this.profileID] = this.profileData;
+      this.profileData.workouts = this.slides;
+
+      await this.$storage.set('rutina', db);
     },
     updateValue(slideIndex: number, valIndex: number) {
       this.$q.dialog({
@@ -156,40 +173,25 @@ export default defineComponent({
     }
   },
   async mounted() {
-    // let profileData : {workouts: Workout[] | undefined, version: string} = (await this.$storage.get(this.profileID) as unknown) as {workouts: Workout[] | undefined, version: string};
-    // let storedSlides = profileData.workouts;
+    let db : RoutinaDB | undefined = (await this.$storage.get('rutina') as unknown) as RoutinaDB;
+    if (!db) {
+        await this.save();
+    }
+    db = (await this.$storage.get('rutina') as unknown) as RoutinaDB;
 
-    // if (!storedSlides) {
-    //   storedSlides = [
-    //     {
-    //       name: 'Squats',
-    //       values: [ 0 ],
-    //       maxValue: 1,
-    //       measurement: 'lbs',
-    //     },
-    //     {
-    //       name: 'Dead Lifts',
-    //       values: [0],
-    //       maxValue: 1,
-    //       measurement: 'lbs',
-    //     },
-    //     {
-    //       name: 'Pull Downs',
-    //       values: [0],
-    //       maxValue: 1,
-    //       measurement: 'lbs',
-    //     },
-    //     {
-    //       name: 'Bench Press',
-    //       values: [0],
-    //       maxValue: 1,
-    //       measurement: 'lbs',
-    //     },
-    //   ]
-    // }
+    this.profileData = db.rutina.profiles[this.profileID]
+    this.profileData.workouts.concat(db.rutina.profiles[this.profileID].workouts);
 
-    // const startingIndex = 0;
-    // this.currentSlideName = `IndexSlidesWorkout${startingIndex}-${this.slides[startingIndex].name}`;
+    let storedSlides = this.profileData.workouts;
+
+    if (storedSlides) {
+      this.slides.splice(0, 0, ...storedSlides);
+    }
+
+    if (this.profileData.workouts.length) {
+      const startingIndex = this.profileData.workouts.length - 1;
+      this.currentSlideName = `IndexSlidesWorkout${startingIndex}-${this.slides[startingIndex].name}`;
+    }
   }
 });
 </script>
